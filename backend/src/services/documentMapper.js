@@ -14,8 +14,14 @@ function createStoredDocument(file, owner, createId = randomUUID, now = () => ne
 }
 
 function toPublicDocument(document) {
-  const { storedName, storagePath, ...publicDocument } = document;
-  return publicDocument;
+  return {
+    id: document.id,
+    originalName: document.originalName,
+    size: document.size,
+    mimeType: document.mimeType,
+    uploadedAt: document.uploadedAt,
+    owner: document.owner,
+  };
 }
 
 module.exports = {

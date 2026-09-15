@@ -44,6 +44,7 @@ test('remove campos internos ao expor documento publicamente', () => {
     owner: 'user-123',
     storedName: 'stored-file-name',
     storagePath: '/tmp/stored-file-name',
+    checksum: 'internal-checksum',
   });
 
   assert.deepStrictEqual(publicDocument, {

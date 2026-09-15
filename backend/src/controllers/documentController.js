@@ -55,7 +55,7 @@ class DocumentController {
 
       return res.download(
         document.storagePath,
-        document.originalName,
+        this.getDownloadName(document.originalName),
         { headers: { 'Content-Type': document.mimeType } },
         (error) => {
           if (error && !res.headersSent) {
@@ -77,6 +77,15 @@ class DocumentController {
     error.status = status;
     error.code = code;
     return error;
+  }
+
+  getDownloadName(originalName) {
+    const safeName = String(originalName || '')
+      .replace(/[\u0000-\u001F\u007F]/g, '')
+      .replace(/[\\/]/g, '_')
+      .trim();
+
+    return safeName || 'documento';
   }
 }
 

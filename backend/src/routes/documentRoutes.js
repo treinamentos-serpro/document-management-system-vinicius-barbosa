@@ -25,7 +25,7 @@ const upload = multer({
   limits: { fileSize: maxUploadSize },
 });
 
-const documentRepository = new DocumentRepository();
+const documentRepository = new DocumentRepository(storageDirectory);
 const documentService = new DocumentService(documentRepository);
 const documentController = new DocumentController(documentService);
 const router = express.Router();
@@ -43,11 +43,20 @@ function uploadSingleFile(req, res, next) {
       return next(error);
     }
 
-    error.status = error instanceof multer.MulterError ? 400 : 500;
-    error.code = error instanceof multer.MulterError ? 'FILE_REQUIRED' : 'UPLOAD_FAILED';
-    error.message = error.status === 400
-      ? 'Envie um único arquivo no campo file.'
-      : 'Não foi possível enviar o documento.';
+    if (error instanceof multer.MulterError) {
+      error.status = 400;
+      error.code = error.code === 'LIMIT_UNEXPECTED_FILE'
+        ? 'UNEXPECTED_FILE'
+        : 'INVALID_MULTIPART';
+      error.message = error.code === 'UNEXPECTED_FILE'
+        ? 'Envie um único arquivo no campo file.'
+        : 'A requisição multipart é inválida.';
+      return next(error);
+    }
+
+    error.status = 500;
+    error.code = 'UPLOAD_FAILED';
+    error.message = 'Não foi possível enviar o documento.';
     return next(error);
   });
 }

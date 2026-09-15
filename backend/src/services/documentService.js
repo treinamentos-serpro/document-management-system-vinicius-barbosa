@@ -14,14 +14,13 @@ class DocumentService {
       uploadedAt: new Date().toISOString(),
       owner,
       storedName: file.filename,
-      storagePath: file.path,
     };
 
     try {
       this.documentRepository.save(document);
       return this.toPublicDocument(document);
     } catch (error) {
-      await this.documentRepository.removeFile(file.path).catch(() => {});
+      await this.documentRepository.removeFile(file.filename).catch(() => {});
       throw error;
     }
   }
@@ -42,14 +41,17 @@ class DocumentService {
       throw error;
     }
 
-    if (!(await this.documentRepository.fileExists(document.storagePath))) {
+    if (!(await this.documentRepository.fileExists(document.storedName))) {
       const error = new Error('Arquivo não encontrado.');
       error.code = 'FILE_NOT_FOUND';
       error.status = 404;
       throw error;
     }
 
-    return document;
+    return {
+      ...document,
+      storagePath: this.documentRepository.getStoragePath(document.storedName),
+    };
   }
 
   toPublicDocument(document) {

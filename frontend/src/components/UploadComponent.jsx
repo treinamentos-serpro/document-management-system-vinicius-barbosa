@@ -10,9 +10,12 @@ export default function UploadComponent({ disabled, onUpload }) {
       return;
     }
 
-    await onUpload(selectedFile);
-    setSelectedFile(null);
-    event.currentTarget.reset();
+    const uploaded = await onUpload(selectedFile);
+
+    if (uploaded) {
+      setSelectedFile(null);
+      event.currentTarget.reset();
+    }
   }
 
   return (

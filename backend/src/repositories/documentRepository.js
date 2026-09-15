@@ -1,8 +1,10 @@
 const fs = require('node:fs/promises');
+const path = require('node:path');
 
 class DocumentRepository {
-  constructor() {
+  constructor(storageDirectory) {
     this.documents = new Map();
+    this.storageDirectory = path.resolve(storageDirectory);
   }
 
   save(document) {
@@ -20,17 +22,25 @@ class DocumentRepository {
       .sort((first, second) => second.uploadedAt.localeCompare(first.uploadedAt));
   }
 
-  async fileExists(storagePath) {
+  getStoragePath(storedName) {
+    if (!storedName || storedName !== path.basename(storedName)) {
+      throw new Error('Nome físico de arquivo inválido.');
+    }
+
+    return path.join(this.storageDirectory, storedName);
+  }
+
+  async fileExists(storedName) {
     try {
-      await fs.access(storagePath);
+      await fs.access(this.getStoragePath(storedName));
       return true;
     } catch {
       return false;
     }
   }
 
-  async removeFile(storagePath) {
-    await fs.unlink(storagePath);
+  async removeFile(storedName) {
+    await fs.unlink(this.getStoragePath(storedName));
   }
 }
 

@@ -26,15 +26,35 @@ app.get('/health', (req, res) => {
 
 app.use(documentRoutes);
 
+app.use((req, res) => {
+  res.status(404).json({
+    error: {
+      code: 'ROUTE_NOT_FOUND',
+      message: 'Rota não encontrada.',
+    },
+  });
+});
+
 app.use((error, req, res, next) => {
   if (res.headersSent) {
     return next(error);
   }
 
-  return res.status(error.status || 500).json({
+  const status = Number.isInteger(error.status) ? error.status : 500;
+  const publicMessages = new Set([
+    'FILE_TOO_LARGE',
+    'FILE_REQUIRED',
+    'INVALID_MULTIPART',
+    'UNEXPECTED_FILE',
+    'USER_ID_REQUIRED',
+    'DOCUMENT_NOT_FOUND',
+    'FILE_NOT_FOUND',
+  ]);
+
+  return res.status(status).json({
     error: {
       code: error.code || 'INTERNAL_ERROR',
-      message: error.status ? error.message : 'Erro interno do servidor.',
+      message: publicMessages.has(error.code) ? error.message : 'Erro interno do servidor.',
     },
   });
 });

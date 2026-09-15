@@ -1,6 +1,7 @@
 const { test } = require('node:test');
 const assert = require('node:assert');
 const DocumentService = require('../src/services/documentService');
+const DocumentRepository = require('../src/repositories/documentRepository');
 
 function createFile(overrides = {}) {
   return {
@@ -29,6 +30,9 @@ function createDocument(overrides = {}) {
 
 function createRepository(overrides = {}) {
   return {
+    getStoragePath(storedName) {
+      return `/storage/${storedName}`;
+    },
     savedDocuments: [],
     removedFiles: [],
     save(document) {
@@ -44,8 +48,8 @@ function createRepository(overrides = {}) {
     async fileExists() {
       return true;
     },
-    async removeFile(storagePath) {
-      this.removedFiles.push(storagePath);
+    async removeFile(storedName) {
+      this.removedFiles.push(storedName);
     },
     ...overrides,
   };
@@ -70,7 +74,7 @@ test('cria documento com metadados públicos e registra no repositório', async 
 
   assert.strictEqual(repository.savedDocuments.length, 1);
   assert.strictEqual(repository.savedDocuments[0].storedName, file.filename);
-  assert.strictEqual(repository.savedDocuments[0].storagePath, file.path);
+  assert.strictEqual(repository.savedDocuments[0].storagePath, undefined);
 });
 
 test('remove arquivo criado quando o registro no repositório falha', async () => {
@@ -84,7 +88,7 @@ test('remove arquivo criado quando o registro no repositório falha', async () =
   const file = createFile();
 
   await assert.rejects(() => service.createDocument(file, 'user-123'), saveError);
-  assert.deepStrictEqual(repository.removedFiles, [file.path]);
+  assert.deepStrictEqual(repository.removedFiles, [file.filename]);
 });
 
 test('lista somente documentos retornados pelo repositório sem campos internos', () => {
@@ -130,8 +134,8 @@ test('retorna documento para download quando existe, pertence ao usuário e o ar
       assert.strictEqual(id, 'document-id');
       return storedDocument;
     },
-    async fileExists(storagePath) {
-      this.checkedPath = storagePath;
+    async fileExists(storedName) {
+      this.checkedPath = storedName;
       return true;
     },
   });
@@ -139,8 +143,9 @@ test('retorna documento para download quando existe, pertence ao usuário e o ar
 
   const document = await service.getDocumentForDownload('document-id', 'user-123');
 
-  assert.strictEqual(document, storedDocument);
-  assert.strictEqual(repository.checkedPath, storedDocument.storagePath);
+  assert.strictEqual(document.id, storedDocument.id);
+  assert.strictEqual(document.storagePath, '/storage/stored-file-name');
+  assert.strictEqual(repository.checkedPath, storedDocument.storedName);
 });
 
 test('rejeita download de documento inexistente com erro padronizado', async () => {
@@ -192,5 +197,14 @@ test('rejeita download quando o arquivo físico não está disponível', async (
       status: 404,
       message: 'Arquivo não encontrado.',
     },
+  );
+});
+
+test('não aceita traversal no nome físico do arquivo', () => {
+  const repository = new DocumentRepository('/tmp/dms-storage');
+
+  assert.throws(
+    () => repository.getStoragePath('../outside-file'),
+    /Nome físico de arquivo inválido/,
   );
 });

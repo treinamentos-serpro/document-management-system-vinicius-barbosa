@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import DocumentList from './components/DocumentList';
 import UploadComponent from './components/UploadComponent';
 import { listDocuments, uploadDocument } from './services/documentApi';
@@ -9,9 +9,11 @@ export default function App() {
   const [documents, setDocuments] = useState([]);
   const [feedback, setFeedback] = useState({ message: '', type: 'success' });
   const [isLoading, setIsLoading] = useState(false);
+  const latestUserId = useRef('demo-user');
 
   const trimmedUserId = userId.trim();
   const isUserMissing = !trimmedUserId;
+  latestUserId.current = trimmedUserId;
 
   useEffect(() => {
     if (isUserMissing) {
@@ -50,16 +52,23 @@ export default function App() {
   }, [isUserMissing, trimmedUserId]);
 
   async function handleUpload(file) {
+    const uploadUserId = trimmedUserId;
     setIsLoading(true);
     setFeedback({ message: '', type: 'success' });
 
     try {
       await uploadDocument(file, trimmedUserId);
-      const updatedDocuments = await listDocuments(trimmedUserId);
-      setDocuments(updatedDocuments);
-      setFeedback({ message: 'Documento enviado com sucesso.', type: 'success' });
+      const updatedDocuments = await listDocuments(uploadUserId);
+
+      if (latestUserId.current === uploadUserId) {
+        setDocuments(updatedDocuments);
+        setFeedback({ message: 'Documento enviado com sucesso.', type: 'success' });
+      }
+
+      return true;
     } catch (error) {
       setFeedback({ message: error.message, type: 'error' });
+      return false;
     } finally {
       setIsLoading(false);
     }

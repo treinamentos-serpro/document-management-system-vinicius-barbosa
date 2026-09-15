@@ -1,0 +1,187 @@
+:root {
+  color: #182126;
+  background: #eef3f1;
+  font-family: Georgia, 'Times New Roman', serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+}
+
+button,
+input {
+  font: inherit;
+}
+
+button {
+  background: #0f766e;
+  border: 0;
+  border-radius: 6px;
+  color: #ffffff;
+  cursor: pointer;
+  font-weight: 700;
+  padding: 12px 18px;
+}
+
+button:disabled {
+  background: #8da7a2;
+  cursor: not-allowed;
+}
+
+input {
+  border: 1px solid #b5c6c2;
+  border-radius: 6px;
+  color: #182126;
+  padding: 12px 14px;
+}
+
+.app-shell {
+  min-height: 100vh;
+  padding: 48px 20px;
+}
+
+.app-container {
+  background: #ffffff;
+  border: 1px solid #cfddda;
+  border-radius: 8px;
+  box-shadow: 0 18px 50px rgba(21, 55, 61, 0.14);
+  margin: 0 auto;
+  padding: 32px;
+  width: min(900px, 100%);
+}
+
+.app-header {
+  border-bottom: 1px solid #d9e5e2;
+  margin-bottom: 28px;
+  padding-bottom: 24px;
+}
+
+.app-eyebrow {
+  color: #b45309;
+  font-size: 0.85rem;
+  font-weight: 700;
+  margin: 0 0 8px;
+  text-transform: uppercase;
+}
+
+.app-header h1 {
+  font-size: clamp(2rem, 6vw, 4rem);
+  line-height: 1;
+  margin: 0;
+}
+
+.user-field,
+.upload-panel {
+  display: grid;
+  gap: 8px;
+  margin-bottom: 24px;
+}
+
+.user-field,
+.upload-panel label {
+  font-weight: 700;
+}
+
+.upload-controls {
+  align-items: center;
+  display: flex;
+  gap: 12px;
+}
+
+.upload-controls input {
+  flex: 1;
+  min-width: 0;
+}
+
+.message {
+  border-radius: 6px;
+  margin: 14px 0 0;
+  padding: 12px 14px;
+}
+
+.message-success {
+  background: #e4f7ee;
+  color: #166534;
+}
+
+.message-error {
+  background: #fff1f2;
+  color: #be123c;
+}
+
+.documents-section {
+  margin-top: 32px;
+}
+
+.section-header {
+  align-items: center;
+  display: flex;
+  gap: 12px;
+  justify-content: space-between;
+}
+
+.section-header h2 {
+  font-size: 1.5rem;
+  margin: 0;
+}
+
+.section-header span {
+  color: #0f766e;
+}
+
+.empty-state {
+  background: #f6faf9;
+  border: 1px dashed #b5c6c2;
+  border-radius: 8px;
+  color: #526461;
+  margin: 18px 0 0;
+  padding: 24px;
+}
+
+.document-list {
+  display: grid;
+  gap: 12px;
+  margin-top: 18px;
+}
+
+.document-item {
+  align-items: center;
+  background: #f8fbfa;
+  border: 1px solid #d9e5e2;
+  border-radius: 8px;
+  display: flex;
+  gap: 16px;
+  justify-content: space-between;
+  padding: 16px;
+}
+
+.document-item h2 {
+  font-size: 1.05rem;
+  margin: 0 0 6px;
+  overflow-wrap: anywhere;
+}
+
+.document-item p {
+  color: #526461;
+  margin: 0;
+}
+
+@media (max-width: 640px) {
+  .app-shell {
+    padding: 20px 12px;
+  }
+
+  .app-container {
+    padding: 20px;
+  }
+
+  .upload-controls,
+  .document-item {
+    align-items: stretch;
+    flex-direction: column;
+  }
+}
